@@ -4,8 +4,15 @@ jobs:
     working_directory: ~/repo
     docker:
       - image: cimg/node:16.17.0
+    environment:
+      CHROME_BIN: /usr/bin/google-chrome
+    orbs:
+      browser-tools: circleci/browser-tools@1.4.0
     steps:
       - checkout
+      - run:
+          name: install-browser-tools
+          command: "browser-tools/install-browser-tools"
       - run:
           name: install-ionic
           command: "sudo npm install -g @ionic/cli"
