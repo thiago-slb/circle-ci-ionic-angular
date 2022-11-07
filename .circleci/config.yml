@@ -2,7 +2,7 @@ version: 2.1
 orbs:
   browser-tools: circleci/browser-tools@1.4.0
 jobs:
-  build:
+  test: 
     working_directory: ~/repo
     docker:
       - image: cimg/node:16.17.0
@@ -12,6 +12,26 @@ jobs:
       - checkout
       - browser-tools/install-chrome
       - browser-tools/install-chromedriver
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run:
+          name: install-packages
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: test
+          command: npm run test
+  build:
+    working_directory: ~/repo
+    docker:
+      - image: cimg/node:16.17.0
+    environment:
+      CHROME_BIN: /usr/bin/google-chrome
+    steps:
+      - checkout
       - run:
           name: install-ionic
           command: "sudo npm install -g @ionic/cli"
@@ -27,6 +47,3 @@ jobs:
       - run:
           name: build-prod
           command: ionic build --prod
-      - run:
-          name: test
-          command: npm run test
