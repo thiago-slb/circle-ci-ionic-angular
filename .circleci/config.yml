@@ -4,7 +4,21 @@ orbs:
   android: circleci/android@2.1.2
 
 jobs:
+  build-debug-ios:
+    working_directory: ~/repo/ios
+    macos:
+      xcode: 11.0.0
+    steps:
+      - checkout
+      - run: pod install 
+      - run: fastlane scan
+      - store_test_results:
+          path: test_output
+      - store_artifacts:
+          path: test_output
+          destination: scan-output
   android-debug-build:
+    working_directory: ~/repo/android
     executor:
       name: android/android-machine
 
@@ -20,7 +34,7 @@ jobs:
           name: Assemble release build
           command: |
             ./gradlew assembleRelease
-  test: 
+  web-test: 
     working_directory: ~/repo
     docker:
       - image: 'cimg/node:16.17-browsers'
@@ -67,11 +81,9 @@ jobs:
           command: ionic build --prod
           
 workflows:
-  version: 2
   build_and_test:
     jobs:
-      - test
+      - web-test
       - web-build
       - android-debug-build
-
-# VS Code Extension Version: 1.0.2
+      - build-debug-ios
