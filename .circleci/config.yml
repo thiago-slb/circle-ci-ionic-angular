@@ -2,6 +2,20 @@ version: 2.1
 orbs:
   browser-tools: circleci/browser-tools@1.4.0
 jobs:
+  android-debug-build:
+    executor:
+      name: android/android-machine
+      resource-class: xlarge
+    steps:
+      - checkout
+      - android/restore-gradle-cache
+      - android/restore-build-cache
+      - run:
+          name: Assemble debug build
+          command: |
+            ./gradlew assemble
+      - store_artifacts:
+          path: app/build/outputs/apk/debug
   test: 
     working_directory: ~/repo
     docker:
@@ -26,7 +40,7 @@ jobs:
       - run:
           name: test
           command: test:nowatch
-  build:
+  web-build:
     working_directory: ~/repo
     docker:
       - image: cimg/node:16.17.0
@@ -53,4 +67,5 @@ workflows:
   build_and_test:
     jobs:
       - test
-      # - build
+      - web-build
+      - android-debug-build
