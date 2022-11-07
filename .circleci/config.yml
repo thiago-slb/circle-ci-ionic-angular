@@ -39,7 +39,7 @@ jobs:
             - ./node_modules
       - run:
           name: test
-          command: test:nowatch
+          command: npm run test:nowatch
   web-build:
     working_directory: ~/repo
     docker:
