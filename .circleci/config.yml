@@ -5,23 +5,17 @@ jobs:
   test: 
     working_directory: ~/repo
     docker:
-      - image: selenium/standalone-chrome:latest
+      - image: 'cimg/node:16.17-browsers'
     steps:
       - checkout
-      - run: |
-          head -n -6 /opt/google/chrome/google-chrome | sudo tee /opt/google/chrome/google-chrome-updated
-          echo 'exec -a "$0" /opt/google/chrome/chrome --no-sandbox "$@"' | sudo tee -a /opt/google/chrome/google-chrome-updated
-          sudo mv /opt/google/chrome/google-chrome-updated /opt/google/chrome/google-chrome
-          sudo chmod 775 /opt/google/chrome/google-chrome
-          ls -lah /usr/bin/google-chrome && ls -lah /etc/alternatives/google-chrome && ls -lah /usr/bin/google-chrome-stable && ls -lah /opt/google/chrome/google-chrome
-      - run: |
-          wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.4/install.sh | bash
-          echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
-          echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
-          echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> $BASH_ENV
-      - run: nvm install 16.17.0
-      # - restore_cache:
-      #     key: dependency-cache-{{ checksum "package-lock.json" }}
+      - browser-tools/install-chrome
+      - browser-tools/install-chromedriver
+      - run:
+          command: |
+            google-chrome --version
+            chromedriver --version
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:
           name: install-packages
           command: npm install
@@ -59,4 +53,4 @@ workflows:
   build_and_test:
     jobs:
       - test
-      - build
+      # - build
